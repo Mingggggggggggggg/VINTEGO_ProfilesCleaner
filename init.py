@@ -30,7 +30,11 @@ def main():
     
     #TODO DAS HIER
     if isCompare:
-        diffResult = compare(sysProfileData, dirProfileData)
+        sysDiff, dirDiff = compare(sysProfileData, dirProfileData)
+        
+        if sysDiff:
+            for i in sysDiff:
+                print(f"Nutzer in Registry gefunden, aber nicht im Ordnerverzeichnis: {sysDiff}. Manuelle Überprüfung erforderlich.")
 
     
     if isDelProfiles:
