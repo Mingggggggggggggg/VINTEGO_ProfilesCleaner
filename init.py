@@ -1,5 +1,7 @@
 import argparse
 import sys
+from getProfiles import getSysProfiles, getDirProfiles
+from compareProfiles import compare
 
 
 minSize = 50
@@ -23,6 +25,21 @@ def main():
     isCompare: bool = args.compare.lower() == "true"
     isDelProfiles: bool = args.delProfiles.lower() == "true"
 
+    sysProfileData = getSysProfiles()
+    dirProfileData = getDirProfiles()
+    
+    #TODO DAS HIER
+    if isCompare:
+        diffResult = compare(sysProfileData, dirProfileData)
+
+    
+    if isDelProfiles:
+        if isCompare:
+            #del diffRes + <50mb
+            pass
+        else: 
+            #del <50mb
+            pass
 
 
 

@@ -1,62 +1,76 @@
-import subprocess
 import os
+import winreg
 
-# Get-WmiObject Win32_LoggedOnUser | Select Antecedent -Unique # Alle aktiven Nutzer nach Name=
-# oder Get-WMIObject -class Win32_ComputerSystem | select username
-# Get-LocalUser | Select *
-# Get-LocalUser | Select-Object -ExpandProperty Name
-# net user
-# HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList
+userPath = r"C:\Users"
+registryPath = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList"
+excludeUsersDir = ["All Users", "Default", "Gast", "Default User", "Public"]
 
+sysProfiles = []
+dirProfiles = []
+log = []
+log.append("--------------- Profile Log ---------------")
 
-userPath = r"C:\\Users"
-#TODO Exclude Rules implementieren
-excludeUsersSys = ["DefaultAccount", "Gast", "Administrator", "WDAGUtilityAccount"]
-excludeUsersDir = ["All Users", "Default", "Gast", "Default User", "Praktikant WHV", "Public"]
+def getFolderSize(profilePath):
+    totalSize = 0
+    for dirpath, _, filenames in os.walk(profilePath):
+        for f in filenames:
+            try:
+                fp = os.path.join(dirpath, f)
+                if not os.path.islink(fp):
+                    totalSize += os.path.getsize(fp)
+            except:
+                continue
+    return totalSize / 1024**2  # MB
 
 def getSysProfiles():
+    print("Profile werden über Windows Registry abgerufen. Es kann einen Moment dauern.")
     try:
-        cmd = ["powershell", "-Command", "Get-LocalUser | Select-Object -ExpandProperty Name"]
-        output = subprocess.check_output(cmd, text=True, encoding="mbcs", stderr=subprocess.DEVNULL)
-        #print(output)
-        users = []
-        for line in output.splitlines():
-            name = line.strip()
-            if name:
-                users.append(name)
-
-        print(users)
-        return users
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, registryPath) as key:
+            for i in range(winreg.QueryInfoKey(key)[0]):
+                regContentName = winreg.EnumKey(key, i)
+                with winreg.OpenKey(key, regContentName) as regContent:
+                    try:
+                        path, _ = winreg.QueryValueEx(regContent, "ProfileImagePath")
+                        username = os.path.basename(path)
+                        if not os.path.exists(path):
+                            continue
+                        sizeMB = round(getFolderSize(path), 2)
+                        sysProfiles.append([username, sizeMB, path])
+                    except FileNotFoundError:
+                        print("Kein Nutzer gefunden.")
+                        continue
     except Exception as e:
-        print(f"Fehler beim Auslesen der Nutzer mit PowerShell: {e}")
+        print(f"Fehler beim Registry-Zugriff: {e}")
 
+    return sysProfiles
 
 def getDirProfiles(userPath):
-    userDir = []
-
-    for name in os.listdir(userPath):
-        full_path = os.path.join(userPath, name)
-        if os.path.isdir(full_path):
-            size_bytes = 0
-            for root, dirs, files in os.walk(full_path):
-                for file in files:
-                    try:
-                        filepath = os.path.join(root, file)
-                        size_bytes += os.path.getsize(filepath)
-                    except:
-                        pass 
-
-            size_mb = round(size_bytes / (1024 * 1024), 2)
-            userDir.append([name, size_mb])
-
-    print(userDir)
-    return userDir
-
+    print("Nutzer innerhalb des Ordnerverzeichnisses werden abgerufen. Dies kann einen Moment dauern.")
+    dirProfiles = []
+    try:
+        for name in os.listdir(userPath):
+            fullPath = os.path.join(userPath, name)
+            if not os.path.isdir(fullPath):
+                continue
+            if name in excludeUsersDir:
+                continue
+            sizeMB = round(getFolderSize(fullPath), 2)
+            dirProfiles.append([name, sizeMB, fullPath])
+    except Exception as e:
+        print(f"Fehler beim Auslesen des Ordnerberzeichnisses: {e}")
+    return dirProfiles
 
 
 def initGetProfiles():
-    pass
+    
+    sysProfs = getSysProfiles()
+    for sysProfile in sysProfs:
+        log.append(f"{sysProfile[0]:20} | {sysProfile[1]:6.2f} MB | {sysProfile[2]}")
+        
 
-if __name__ == "__main__":
-    getSysProfiles()
-    getDirProfiles(userPath)
+    dirProfs = getDirProfiles(userPath)
+    for dirProfile in dirProfs:
+        log.append(f"{dirProfile[0]:20} | {dirProfile[1]:6.2f} MB | {dirProfile[2]}")
+        
+    return sysProfs, dirProfs
+
