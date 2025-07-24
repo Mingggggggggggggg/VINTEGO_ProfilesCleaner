@@ -38,25 +38,28 @@ def flagSize(minSize, sysProfiles, dirProfiles):
     return sysSizeFlag, dirSizeFlag
 
 
-def toDelete(sysProfiles, dirProfiles, sysSizeFlag, dirSizeFlag, sysOverflow, dirOverflow):
-    toDeleteSys = []
-    toDeleteDir = []
+def toDelete(sysSizeFlag, dirSizeFlag, sysOverflow, dirOverflow):
 
-    for profile in sysSizeFlag:
-        if profile in sysProfiles:
-            toDeleteSys.append(profile)
+    def clean_entry(name, path):
+        return (name.lower(), path.strip())
 
+    # Registry-Profile
+    toDeleteSys = set()
+    for name, _, path in sysSizeFlag:
+        toDeleteSys.add(clean_entry(name, path))
     for name, path in sysOverflow:
-        toDeleteSys.append([name, 0.0, path])  # Größe ist unbekannt oder egal
+        toDeleteSys.add(clean_entry(name, path))
 
-    for profile in dirSizeFlag:
-        if profile in dirProfiles:
-            toDeleteDir.append(profile)
-
+    # Ordner-Profile
+    toDeleteDir = set()
+    for name, _, path in dirSizeFlag:
+        toDeleteDir.add(clean_entry(name, path))
     for name, path in dirOverflow:
-        toDeleteDir.append([name, 0.0, path])
+        toDeleteDir.add(clean_entry(name, path))
 
-    return toDeleteSys, toDeleteDir
+    return list(toDeleteSys), list(toDeleteDir)
+
+
 
 
 
@@ -65,7 +68,7 @@ def toDelete(sysProfiles, dirProfiles, sysSizeFlag, dirSizeFlag, sysOverflow, di
 def initCompare(minSize, sysProfiles, dirProfiles):
     sysUsersOverflow, dirUsersOverflow = compare(sysProfiles, dirProfiles)
     sysSizeFlag, dirSizeFlag = flagSize(minSize, sysProfiles, dirProfiles)
-    toDeleteSys, toDeleteDir = toDelete(sysProfiles, dirProfiles, sysSizeFlag, dirSizeFlag, sysUsersOverflow, dirUsersOverflow)
-    print(f"TODELETESYS: {toDeleteSys} -- TODELETEDIR: {toDeleteDir}")
+    
+    toDeleteSys, toDeleteDir = toDelete(sysSizeFlag, dirSizeFlag, sysUsersOverflow, dirUsersOverflow)
+    
     return toDeleteSys, toDeleteDir
-    #return sysUsersOverflow, dirUsersOverflow, sysSizeFlag, dirSizeFlag
