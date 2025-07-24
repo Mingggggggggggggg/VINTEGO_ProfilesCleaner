@@ -1,7 +1,7 @@
 import argparse
 import sys
-from getProfiles import getSysProfiles, getDirProfiles
-from compareProfiles import compare
+import getProfiles
+from compareProfiles import initCompare
 
 
 minSize = 50
@@ -25,21 +25,24 @@ def main():
     isCompare: bool = args.compare.lower() == "true"
     isDelProfiles: bool = args.delProfiles.lower() == "true"
 
-    sysProfileData = getSysProfiles()
-    dirProfileData = getDirProfiles()
-    
+    sysProfileData, dirProfileData = getProfiles.initGetProfiles()
+    isCompare = True
     #TODO DAS HIER
     if isCompare:
-        sysDiff, dirDiff = compare(sysProfileData, dirProfileData)
+        sysDiff, dirDiff = initCompare(minSize, sysProfileData, dirProfileData)
         
         if sysDiff:
             for i in sysDiff:
-                print(f"Nutzer in Registry gefunden, aber nicht im Ordnerverzeichnis: {sysDiff}. Manuelle Überprüfung erforderlich.")
-
+                print(f"Nutzer in Registry gefunden, aber nicht im Ordnerverzeichnis: {i}. Manuelle Überprüfung erforderlich.")
+        if dirDiff:
+            for j in dirDiff:
+                print(f"Verwaiste Nutzer im Ordnerverzeichnis gefunden: {j}")
     
+    isDelProfiles = True
     if isDelProfiles:
         if isCompare:
-            #del diffRes + <50mb
+            #Lösche 
+            #del diffReg + <50mb
             pass
         else: 
             #del <50mb

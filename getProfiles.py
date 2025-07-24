@@ -65,12 +65,16 @@ def initGetProfiles():
     
     sysProfs = getSysProfiles()
     for sysProfile in sysProfs:
+        print(f"{sysProfile[0]:20} | {sysProfile[1]:6.2f} MB | {sysProfile[2]}")
         log.append(f"{sysProfile[0]:20} | {sysProfile[1]:6.2f} MB | {sysProfile[2]}")
         
 
     dirProfs = getDirProfiles(userPath)
     for dirProfile in dirProfs:
+        print(f"{dirProfile[0]:20} | {dirProfile[1]:6.2f} MB | {dirProfile[2]}")
         log.append(f"{dirProfile[0]:20} | {dirProfile[1]:6.2f} MB | {dirProfile[2]}")
         
     return sysProfs, dirProfs
 
+if __name__ == "__main__":
+    initGetProfiles()
