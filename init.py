@@ -1,54 +1,41 @@
 import argparse
 import sys
 import getProfiles
-from compareProfiles import initCompare
+import manageProfiles
+import logger
 
-
-minSize = 50
+log = []
 
 def getArgs():
-    parser = argparse.ArgumentParser(description="Anwendung zum Anzeigen ungenutzter Benutzerprofile mit Möglichkeit zum Löschen.")
+    parser = argparse.ArgumentParser(description="Anwendung zum Anzeigen ungenutzter Benutzerprofile mit Möglichkeit zum Löschen. Verwaiste Nutzer im Ordnerverzeichnis und Nutzer unter der Mindestgröße werden gelöscht.")
     parser.add_argument("minSize", 
                         type=int, 
-                        help="[INTEGER] Setze mindestgröße zu Profilen, die gelöscht werdn sollen.")
-    parser.add_argument("--compare", 
-                        default="false", 
-                        help="[true/false] Sollen die Windows-Benutzerkonten mit dem Nutzer-Ordnerverzeichnis verglichen werden?")
+                        help="[INTEGER] Mindestgröße in MB von Profilen, die gelöscht werden sollen.")
     parser.add_argument("--delProfiles", 
                         default="false", 
-                        help="[true/false] Sollen die Profile gelöscht werden? Wenn compare = true, dann auch ungenutzte Nutzer im Ordnerverzeichnis.")
-    return parser.parse_args() 
+                        help="[true/false] Sollen die Profile gelöscht werden?")
+    return parser.parse_args()
 
 def main():
     args = getArgs()
-    minSize: int = args.minSize
-    isCompare: bool = args.compare.lower() == "true"
-    isDelProfiles: bool = args.delProfiles.lower() == "true"
+    minSize = args.minSize
+    delProfile = args.delProfiles.lower() == "true"
 
-    sysProfileData, dirProfileData = getProfiles.initGetProfiles()
-    isCompare = True
-    #TODO DAS HIER
-    if isCompare:
-        sysDiff, dirDiff = initCompare(minSize, sysProfileData, dirProfileData)
-        
-        if sysDiff:
-            for i in sysDiff:
-                print(f"Nutzer in Registry gefunden, aber nicht im Ordnerverzeichnis: {i}. Manuelle Überprüfung erforderlich.")
-        if dirDiff:
-            for j in dirDiff:
-                print(f"Verwaiste Nutzer im Ordnerverzeichnis gefunden: {j}")
+    log.append(f"Mindestgröße: {minSize} MB Löschen aktiviert: {delProfile}")
+
+    sysProfiles, activeUsers = getProfiles.initGetProfiles()
     
-    isDelProfiles = True
-    if isDelProfiles:
-        if isCompare:
-            #Lösche 
-            #del diffReg + <50mb
-            pass
-        else: 
-            #del <50mb
-            pass
+    if not sysProfiles:
+        print("Keine Profile gefunden.")
+        return
 
-
+    if delProfile:
+        log.append("Starte Profilbereinigung.")
+        manageProfiles.cleanSysProfiles(minSize)
+        manageProfiles.cleanDirProfiles(minSize)
+        log.append("Profilbereinigung abgeschlossen.")
+    else:
+        print("\nKeine Löschung durchgeführt. Nur Anzeige der Profile.")
 
 if __name__ == "__main__":
     try:
