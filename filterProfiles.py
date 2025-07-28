@@ -1,23 +1,40 @@
-excludeUsersDir = {"all users", "default", "gast", "default user", "public"}
+import getProfiles
+import os
 
-#TODO Nochmal überprüfen
-def filterProfiles(sysProfiles, activeUsers):
-    filtered = []
-    activeUsersSet = set(user.lower() for user in activeUsers)
+def filterProfiles(sysProfiles, activeADUsers):
+    filteredActive = []
+    activeSID = {user[0] for user in activeADUsers}
+
     for profile in sysProfiles:
-        username = profile[0].lower()
-        if username in activeUsersSet:
-            continue
-        if username in excludeUsersDir:
-            continue
-        filtered.append(profile)
-    return filtered
+        _, _, sid, _ = profile
+        if sid not in activeSID:
+            filteredActive.append(profile)
+    return filteredActive
 
-def toDelete(filtered, minSizeMB):
-    candidates = [p for p in filtered if p[1] < minSizeMB]
+
+def toDelete(filteredActive, minSizeMB):
+    candidates = []
+    dirProfiles = getProfiles.getDirProfiles()
+    regPaths = {p[1].lower() for p in filteredActive}
+
+    for profile in filteredActive:
+        if os.path.exists(profile[1]) and profile[3] < minSizeMB:
+            candidates.append(profile)
+
+    for dirProf in dirProfiles:
+        path = dirProf[1].lower()
+        size = dirProf[2]
+
+        if path not in regPaths and size < minSizeMB and os.path.exists(path):
+            candidates.append([dirProf[0], dirProf[1], "DIR_ONLY", size])
+
     return candidates
 
-def initFilter(sysProfiles, activeUsers, minSizeMB=50):
-    filtered = filterProfiles(sysProfiles, activeUsers)
-    candidates = toDelete(filtered, minSizeMB)
-    return candidates
+
+def initFilter(minSizeMB):
+    sysProfiles = getProfiles.getSysProfiles()
+    activeADUsers = getProfiles.getActiveAdUsers()
+    filtered = filterProfiles(sysProfiles, activeADUsers)
+    flagged = toDelete(filtered, minSizeMB)
+    print(flagged)
+    return flagged
