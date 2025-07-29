@@ -1,6 +1,7 @@
 import os
 import subprocess
 import winreg
+import logger
 
 userPath = r"C:\Users"
 registryPath = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList"
@@ -130,4 +131,5 @@ def initGetProfiles():
     sysProfs = getSysProfiles()
     activeADUsers = getActiveAdUsers()
 
+    logger.logMessages("Profilabruf", log)
     return sysProfs, activeADUsers
