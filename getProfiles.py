@@ -1,8 +1,6 @@
 import os
 import subprocess
 import winreg
-import wmi
-import logger
 
 userPath = r"C:\Users"
 registryPath = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList"
