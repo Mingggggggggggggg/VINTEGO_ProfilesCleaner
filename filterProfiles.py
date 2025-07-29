@@ -32,9 +32,8 @@ def toDelete(filteredActive, minSizeMB):
 
 
 def initFilter(minSizeMB):
-    sysProfiles = getProfiles.getSysProfiles()
-    activeADUsers = getProfiles.getActiveAdUsers()
+    sysProfiles, activeADUsers = getProfiles.initGetProfiles()
     filtered = filterProfiles(sysProfiles, activeADUsers)
     flagged = toDelete(filtered, minSizeMB)
-    print(flagged)
+    #print(flagged)
     return flagged

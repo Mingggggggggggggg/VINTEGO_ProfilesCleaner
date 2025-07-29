@@ -1,8 +1,9 @@
 import argparse
 import sys
-import getProfiles
 import manageProfiles
 import logger
+from filterProfiles import initFilter
+
 
 log = []
 
@@ -21,21 +22,35 @@ def main():
     minSize = args.minSize
     delProfile = args.delProfiles.lower() == "true"
 
-    log.append(f"Mindestgröße: {minSize} MB Löschen aktiviert: {delProfile}")
+    log.append(f"Mindestgröße: {minSize} MB | Löschen aktiviert: {delProfile}")
 
-    sysProfiles, activeUsers = getProfiles.initGetProfiles()
-    
-    if not sysProfiles:
-        print("Keine Profile gefunden.")
-        return
+
+    candidates = initFilter(minSize)
 
     if delProfile:
-        log.append("Starte Profilbereinigung.")
-        manageProfiles.cleanSysProfiles(minSize)
-        manageProfiles.cleanDirProfiles(minSize)
+        log.append("Starte Profilbereinigung von:")
+        for c in candidates:
+            username, path, sid, size = c
+            print(f"{username:<20} {size:>6} MB  | {sid}")
+            log.append(f"{username:<20} {size:>6} MB  | {sid}")
+        manageProfiles.initCleanup(candidates)
         log.append("Profilbereinigung abgeschlossen.")
+        log.append("\nÜberprüfe Erfolg.")
+        success = manageProfiles.checkSuccess(candidates)
+        log.append("Check beendet")
+        logger.logMessages("Erfolgsmessung", success)
     else:
-        print("\nKeine Löschung durchgeführt. Nur Anzeige der Profile.")
+        print("Löschen deaktiviert. Folgende Profile wären betroffen:")
+        log.append("Löschen deaktiviert. Zeige Löschkandidaten an")
+        for c in candidates:
+            username, path, sid, size = c
+            print(f"{username:<20} {size:>6} MB  | {sid}")
+            log.append(f"{username:<20} {size:>6} MB  | {sid}")
+        print("Ende Löschkandidaten")
+        log.append("Ende Löschkndidaten")
+
+    logger.logMessages("Status", log, top=True)
+
 
 if __name__ == "__main__":
     try:
