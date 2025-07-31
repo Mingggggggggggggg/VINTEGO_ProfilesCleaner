@@ -51,6 +51,8 @@ def getSysProfiles():
                         path, _ = winreg.QueryValueEx(regContent, "ProfileImagePath")
 
                         if not os.path.exists(path):
+                            log.append(f"Registry-Leiche erkannt – Ordner fehlt: {sid} - {path}")
+                            sysProfiles.append([os.path.basename(path), path, sid, 0.0]) 
                             continue
 
                         username = os.path.basename(path)

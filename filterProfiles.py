@@ -24,8 +24,12 @@ def toDelete(filteredActive, minSizeMB):
     regPaths = {p[1].lower() for p in filteredActive}
 
     for profile in filteredActive:
-        if os.path.exists(profile[1]) and profile[3] < minSizeMB:
+        if not os.path.exists(profile[1]):
+            candidates.append([profile[0], profile[1], "REG_ONLY", 0.0])
+            log.append(f"Löschkandidat: Registry-Leiche ohne Ordner – {profile[0]}")
+        elif profile[3] < minSizeMB:
             candidates.append(profile)
+            log.append(f"Löschkandidat: Registry-Profil, Größe unter Minimum – {profile[0]} ({profile[3]} MB)")
 
     for dirProf in dirProfiles:
         path = dirProf[1].lower()
@@ -33,7 +37,8 @@ def toDelete(filteredActive, minSizeMB):
 
         if path not in regPaths and size < minSizeMB and os.path.exists(path):
             candidates.append([dirProf[0], dirProf[1], "DIR_ONLY", size])
-            log.append(f"Löschkandidaten: {candidates}")
+            log.append(f"Löschkandidat: Nur Ordnerprofil ohne Registry-Eintrag – {dirProf[0]} ({size} MB)")
+
     return candidates
 
 
@@ -41,6 +46,5 @@ def initFilter(minSizeMB):
     sysProfiles, activeADUsers = getProfiles.initGetProfiles()
     filtered = filterProfiles(sysProfiles, activeADUsers)
     flagged = toDelete(filtered, minSizeMB)
-    #print(flagged)
     logger.logMessages("FilterLog", log)
     return flagged
