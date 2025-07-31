@@ -13,14 +13,14 @@ def getArgs():
                         type=int, 
                         help="[INTEGER] Mindestgröße in MB von Profilen, die gelöscht werden sollen.")
     parser.add_argument("--delProfiles", 
-                        default="false", 
-                        help="[true/false] Sollen die Profile gelöscht werden?")
+                        action="store_true", 
+                        help="Sollen die Profile gelöscht werden?")
     return parser.parse_args()
 
 def main():
     args = getArgs()
     minSize = args.minSize
-    delProfile = args.delProfiles.lower() == "true"
+    delProfile = args.delProfiles
 
     log.append(f"Mindestgröße: {minSize} MB | Löschen aktiviert: {delProfile}")
 
