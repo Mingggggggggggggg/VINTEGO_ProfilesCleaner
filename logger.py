@@ -12,11 +12,11 @@ def logMessages(name, data, folderPath=r"C:\VINTEGO-Technik\Logs", fileName="pro
     footer = "-" * (dashes - 3) + f" End{name} " + "-" * (dashes - 3) + "\n"
 
     # Erstelle den Textblock für den Log-Eintrag
-    log_block = "\n\n" + header
+    dataBlock = "\n\n" + header
     for entry in data:
         timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S.%f")[:-3]
-        log_block += f"{timestamp} - {entry}\n"
-    log_block += footer
+        dataBlock += f"{timestamp} - {entry}\n"
+    dataBlock += footer
 
     if top:
         if os.path.exists(fullPath):
@@ -26,7 +26,7 @@ def logMessages(name, data, folderPath=r"C:\VINTEGO-Technik\Logs", fileName="pro
             existing_content = ""
 
         with open(fullPath, "w", encoding="utf-8") as file:
-            file.write(log_block + existing_content)
+            file.write(dataBlock + existing_content)
     else:
         with open(fullPath, "a", encoding="utf-8") as file:
-            file.write(log_block)
+            file.write(dataBlock)

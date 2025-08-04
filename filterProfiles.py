@@ -3,6 +3,7 @@ import os
 
 import logger
 log = []
+candidateLog = []
 
 def filterProfiles(dirProfiles):
     filtered = []
@@ -17,7 +18,8 @@ def filterProfiles(dirProfiles):
     for name, path in dirProfiles:
         if name in skipNames:
             continue
-        print(f"Gefilterte Nutzer: {[name, path]}")
+        print(f"Profile ohne _local: {[name, path]}")
+        log.append(f"Profile ohne _local: {[name, path]}")
         filtered.append([name, path])
 
     return filtered
@@ -39,7 +41,7 @@ def getFolderSize(profilePath):
 
 def toDelete(filtered, minSize):
     print("Löschkandidaten werden ermittelt. Ordnergrößen werden berechnet. Dies kann einen Moment dauern.")
-    log.append("Ermittle Löschkandidaten.")
+    candidateLog.append("Ermittle Löschkandidaten.")
     candidate = []
 
     for profile in filtered:
@@ -48,8 +50,8 @@ def toDelete(filtered, minSize):
         sizeMB = getFolderSize(profile[1])
         if sizeMB < minSize:
             candidate.append([tempName, tempPath, sizeMB])
-            print(f"Löschkandidat gefunden: {tempName}; {tempPath}; {sizeMB} MB")
-            log.append(f"Löschkandidat gefunden: {tempName}; {tempPath}; {sizeMB} MB")
+            print(f"Löschkandidat gefunden: {tempName:<10} {tempPath:^10} {sizeMB:>10} MB")
+            candidateLog.append(f"Löschkandidat gefunden: {tempName:<10} {tempPath:^10} {sizeMB:>10} MB")
 
     return candidate
 
@@ -60,4 +62,5 @@ def initFilter(minSizeMB):
     candidate = toDelete(filtered, minSizeMB)
 
     logger.logMessages("FilterLog", log)
+    logger.logMessages("LöschkandidatenLog", candidateLog)
     return candidate

@@ -9,7 +9,8 @@ log = []
 
 
 def getDirProfiles():
-    log.append("Profile werden über Ordnerverzeichnis abgerufen. Es kann einen Moment dauern.")
+    print("Profile werden über Ordnerverzeichnis abgerufen. Es kann einen Moment dauern.")    
+    log.append("Profile werden über Ordnerverzeichnis abgerufen.")
     try:
         for name in os.listdir(userPath):
             if name.lower() in excludeUsersDir:

@@ -30,22 +30,20 @@ def main():
     if delProfile:
         log.append("Starte Profilbereinigung von:")
         for c in candidates:
-            username, path, sid, size = c
-            print(f"{username:<20} {size:>6} MB  | {sid}")
-            log.append(f"{username:<20} {size:>6} MB  | {sid}")
+            print(f"{c}")
+            log.append(f"{c}")
         manageProfiles.initCleanup(candidates)
         log.append("Profilbereinigung abgeschlossen.")
         log.append("\nÜberprüfe Erfolg.")
-        success = manageProfiles.checkSuccess(candidates)
+        successLog = manageProfiles.checkSuccess(candidates)
         log.append("Check beendet")
-        logger.logMessages("Erfolgsmessung", success)
+        logger.logMessages("Erfolgsmessung", successLog)
     else:
         print("Löschen deaktiviert. Folgende Profile wären betroffen:")
-        log.append("Löschen deaktiviert. Zeige Löschkandidaten an")
+        log.append("Löschen deaktiviert. Zeige Löschkandidaten.")
         for c in candidates:
-            username, path, sid, size = c
-            print(f"{username:<20} {size:>6} MB  | {sid}")
-            log.append(f"{username:<20} {size:>6} MB  | {sid}")
+            print(f"{c}")
+            log.append(f"{c}")
         print("Ende Löschkandidaten")
         log.append("Ende Löschkndidaten")
 
