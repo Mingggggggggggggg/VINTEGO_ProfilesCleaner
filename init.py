@@ -25,17 +25,17 @@ def main():
     log.append(f"Mindestgröße: {minSize} MB | Löschen aktiviert: {delProfile}")
 
 
-    candidates = initFilter(minSize)
+    candidates, sysProfiles = initFilter(minSize)
 
     if delProfile:
         log.append("Starte Profilbereinigung von:")
         for c in candidates:
             print(f"{c}")
             log.append(f"{c}")
-        manageProfiles.initCleanup(candidates)
+        manageProfiles.initCleanup(candidates, sysProfiles)
         log.append("Profilbereinigung abgeschlossen.")
         log.append("\nÜberprüfe Erfolg.")
-        successLog = manageProfiles.checkSuccess(candidates)
+        successLog = manageProfiles.checkSuccess(candidates, sysProfiles)
         log.append("Check beendet")
         logger.logMessages("Erfolgsmessung", successLog)
     else:

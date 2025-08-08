@@ -12,7 +12,7 @@ def logMessages(name, data, folderPath=r"C:\VINTEGO-Technik\Logs", fileName="pro
     footer = "-" * (dashes - 3) + f" End{name} " + "-" * (dashes - 3) + "\n"
 
     # Erstelle den Textblock für den Log-Eintrag
-    dataBlock = "\n\n" + header
+    dataBlock = header
     for entry in data:
         timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S.%f")[:-3]
         dataBlock += f"{timestamp} - {entry}\n"

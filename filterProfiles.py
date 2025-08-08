@@ -57,10 +57,10 @@ def toDelete(filtered, minSize):
 
 
 def initFilter(minSizeMB):
-    dirProfile = getProfiles.initGetProfiles()
+    dirProfile, sysProfiles = getProfiles.initGetProfiles()
     filtered = filterProfiles(dirProfile)
     candidate = toDelete(filtered, minSizeMB)
 
     logger.logMessages("FilterLog", log)
     logger.logMessages("LöschkandidatenLog", candidateLog)
-    return candidate
+    return candidate, sysProfiles
